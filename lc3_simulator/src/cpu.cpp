@@ -1,5 +1,8 @@
 #include "cpu_state.h"    /* Include the previously defined cpu structure into this file*/
+#include "cpu.h"
+#include "memory.h"
 #include <iostream>
+#include <cstdint>
 CPUState::CPUState()
 {
     reset();
@@ -49,3 +52,4 @@ void CPUState::print() const{
     std::cout << std::endl;
 
 }
+
