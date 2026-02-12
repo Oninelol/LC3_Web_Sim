@@ -64,9 +64,49 @@ class CPU{
         return state.p;
     }   /* Access control signals nzp of the CPU */
 
-    
+    uint16_t read_memory(uint16_t addr)
+    {
+        return memory[addr];
+    }
 
-    private:    /*  functions to perform LC3 FSM in CPU */
+    uint16_t write_memory(uint16_t addr,uint16_t write){
+        memory[addr] = write;
+    }   /* Build the memory R/W system in the LC3 CPU (Datapath) */
+
+    void load_program(const uint16_t* prog,uint16_t len,uint16_t start = 0x3000);   /* Load the program into LC3 data, default start at x3000 */
+
+    bool is_running(){
+        return state.running;
+    }   /* check whether if the program is running */
+
+    bool is_halted(){
+        return state.halted;
+    }   /* check whether if the program is halted */
+
+    uint16_t get_cycle_count() const{
+        return state.cycles;
+    }   /* get the total cycles that program has executed for */
+
+    FSMState get_current_state() const{
+        return state.current_state;
+    }
+
+    FSMState get_previous_state() const{
+        return state.previous_state;
+    }   /* Get current and previous state */
+
+    std::string get_state_name() const{
+        return fsm_state_to_string(state.current_state);
+    }
+
+    std::string get_state_desc() const{
+        return fsm_state_description(state.current_state);
+    }
+    /* Get state name and description */
+
+
+    private:   
+     /*  functions to perform LC3 FSM in CPU */
     CPUState state; /* define variable state using CPUState in cpu_state.h */
     std::array<uint16_t, 65536> memory; /* Memory capped at xFFFF */
 
