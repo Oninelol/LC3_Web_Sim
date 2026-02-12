@@ -14,8 +14,57 @@ class CPU{
     void run(); /* Execute instructions until halt */
     void reset(); /* Reset CPU to initial state */
 
+    CPUState& get_state()
+    {
+        return state;
+    }
+    const CPUState& get_state() const{
+        return state;
+    }      /* Access States */
 
-    /* To be added */
+    uint16_t get_reg(int r) const {
+        return state.reg[r];
+    }
+
+    void set_reg(int r,uint16_t val)
+    {
+        state.reg[r] = val;
+    }   /* Access registers */
+
+    uint16_t get_pc() const{
+        return state.pc;
+    }
+
+    void set_pc(uint16_t val)
+    {
+        state.pc = val;
+    }   /* Access PC, program counter of the CPU */
+
+    uint16_t get_mdr() const{
+        return state.MDR;
+    }
+
+    uint16_t get_mar() const{
+        return state.MAR;
+    }
+
+    uint16_t get_ir() const{
+        return state.IR;
+    }   /* Get the values of IR, MAR, and MDR when called */
+
+    bool getn() const{
+        return state.n;
+    }
+
+    bool getz() const{
+        return state.z;
+    }
+
+    bool getp() const{
+        return state.p;
+    }   /* Access control signals nzp of the CPU */
+
+    
 
     private:    /*  functions to perform LC3 FSM in CPU */
     CPUState state; /* define variable state using CPUState in cpu_state.h */
