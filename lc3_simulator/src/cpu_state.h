@@ -59,7 +59,8 @@ enum class FSMState {
     BR_1,   /* 2 states of BR */
 
     HALT,   /* TRAP x25 */
-    ERROR,  /* x1101 instruction at DECODE */
+    ERROR,  /* To 8 instruction at DECODE */
+    RESERVED, /* x1101 reserved opcode */
 
 
 };
@@ -107,6 +108,7 @@ inline std::string fsm_state_to_string(FSMState state){
         case FSMState::BR_1: return "BR_1";
         case FSMState::HALT: return "HALT";
         case FSMState::ERROR: return "ERROR";
+        case FSMState::RESERVED: return "RESERVED OPCODE";
         default: return "UNKNOWN";
     }
 }
@@ -153,6 +155,7 @@ inline std::string fsm_state_description(FSMState state){
         case FSMState::BR_1: return "PC <- PC + offset9";
         case FSMState::HALT: return "Execution Halted";
         case FSMState::ERROR: return "Invalid Instruction";
+        case FSMState::RESERVED: return "RESERVED OPCODE";
         default: return "Unknown Instruction";
     }
 }
@@ -175,6 +178,6 @@ struct CPUState{
 
     CPUState();     /* Constructor */
     void reset();   /* Reset state of LC3 CPU*/
-    void update_flags(uint16_t result);
+    void update_cond(uint16_t result);
     void print() const;
 };
