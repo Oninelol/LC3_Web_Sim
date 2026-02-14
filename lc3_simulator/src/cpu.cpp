@@ -165,11 +165,133 @@ void CPU::execute_ld0(){
 }
 
 void CPU::execute_ld1(){
-    state.MDR = memory[state.MAR];
-    transition_to(FSMState::LD_2);
+    state.MDR = memory[state.MAR]; /* MDR <- M[MAR] */
+    transition_to(FSMState::LD_2);  
 }
 
 void CPU::execute_ld2(){
+    uint16_t dr = state.IR >> 9;
+    dr = dr & 0x0007; /* keep 3 bits of DR */
+    state.reg[dr] = state.MDR; /* DR <- MDR */
+    state.update_cond(state.reg[dr]);
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_ldr0(){
+    uint16_t baseR = state.IR >> 6;
+    baseR = baseR & 0x0007; /* find 3 bits of baseR */
+    uint16_t off6 = state.IR & 0x003F; /* bitmask only off6 bits */
+    off6 = sign_extend(off6,6);
+    state.MAR = state.reg[baseR] + off6; /* MAR <- BaseR + off6 */
+    transition_to(FSMState::LDR_1);
+}
+
+void CPU::execute_ldr1(){
+    state.MDR = memory[state.MAR]; /* MDR <- M[MAR] */
+    transition_to(FSMState::LDR_2);  
+}
+
+void CPU::execute_ldr2(){
+    uint16_t dr = state.IR >> 9;
+    dr = dr & 0x0007; /* keep 3 bits of DR */
+    state.reg[dr] = state.MDR; /* DR <- MDR */
+    state.update_cond(state.reg[dr]);
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_ldi0(){
+    uint16_t off9 = state.IR & 0x01FF; /* Keep off9 */
+    off9 = sign_extend(off9,9);
+    state.MAR = state.pc + off9;
+    transition_to(FSMState::LDI_1);
+}
+
+void CPU::execute_ldi1(){
+    state.MDR = memory[state.MAR]; /* MDR <- M[MAR] */
+    transition_to(FSMState::LDI_2);  
+}
+
+void CPU::execute_ldi2(){
+    state.MAR = state.MDR;
+    transition_to(FSMState::LDI_3);
+}
+
+void CPU::execute_ldi3(){
+    state.MDR = memory[state.MAR]; /* MDR <- M[MAR] */
+    transition_to(FSMState::LDI_4);  
+}
+
+void CPU::execute_ldi4(){
+    uint16_t dr = state.IR >> 9;
+    dr = dr & 0x0007; /* keep 3 bits of DR */
+    state.reg[dr] = state.MDR; /* DR <- MDR */
+    state.update_cond(state.reg[dr]);
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_sti0(){
+    uint16_t off9 = state.IR & 0x01FF; /* Keep off9 */
+    off9 = sign_extend(off9,9);
+    state.MAR = state.pc + off9;
+    transition_to(FSMState::STI_1);
+}
+
+void CPU::execute_sti1(){
+    state.MDR = memory[state.MAR]; /* MDR <- M[MAR] */
+    transition_to(FSMState::STI_2);  
+}
+
+void CPU::execute_sti2(){
+    state.MAR = state.MDR;  /* MAR <- MDR */
+    transition_to(FSMState::STI_3);
+}
+
+void CPU::execute_sti3(){
+    uint16_t sr = state.IR >> 9;
+    sr = sr & 0x0007; /* keep 3 bits of SR */
+    state.MDR = state.reg[sr];
+    transition_to(FSMState::STI_4);
+}
+
+void CPU::execute_sti4(){
+    memory[state.MAR] = state.MDR; /* M[MAR] <- MDR */
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_jsr0(){
+    state.reg[7] = state.pc;    /* R7 <- PC */
+    uint16_t IR11 = state.IR >> 11;
+    IR11 = IR11 & 0x0001; /* only keep the IR[11] bit */
+    if(IR11 == 0){
+        transition_to(FSMState::JSR_1);
+    }
+    else{
+        transition_to(FSMState::JSR_2);
+    }
+}
+
+void CPU::execute_jsr1(){
+    uint16_t baseR = state.IR >> 6;
+    baseR = baseR & 0x0007; /* Mask the baseR bits */
+    state.pc = state.reg[baseR];    /* PC <- BaseR*/
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_jsr2(){
+    uint16_t off11 = state.IR & 0x07FF; /* save the 11 bits at the end */
+    off11 = sign_extend(off11,11);
+    state.pc += off11;
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_jmp0(){
+    uint16_t baseR = state.IR >> 6;
+    baseR = baseR & 0x0007; /* Mask the baseR bits */
+    state.pc = state.reg[baseR];
+    transition_to(FSMState::FETCH_0);
+}
+
+void CPU::execute_br0(){
     
 }
 

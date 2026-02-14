@@ -52,6 +52,7 @@ enum class FSMState {
 
     JSR_0,
     JSR_1,  /* 2 states of JSR, second one depending on IR[11] */
+    JSR_2,  /* JSR_1 is IR[11]=0, JSR_2 is IR[11]=1 */
 
     JMP_0,  /* 1 state of JMP */
 
@@ -102,7 +103,8 @@ inline std::string fsm_state_to_string(FSMState state){
         case FSMState::ST_1: return "ST_1";
         case FSMState::ST_2: return "ST_2";
         case FSMState::JSR_0: return "JSR_0";
-        case FSMState::JSR_1: return "JSR_1";
+        case FSMState::JSR_1: return "JSR, IR11=0";
+        case FSMState::JSR_2: return "JSR, IR[11]=1";
         case FSMState::JMP_0: return "JMP_0";
         case FSMState::BR_0: return "BR_0";
         case FSMState::BR_1: return "BR_1";
@@ -149,7 +151,8 @@ inline std::string fsm_state_description(FSMState state){
         case FSMState::ST_1: return "MDR <- SR";
         case FSMState::ST_2: return "M[MAR] <- MDR";
         case FSMState::JSR_0: return "R7 <- PC (save return address), [IR[11]]";
-        case FSMState::JSR_1: return "PC <- Target Address";
+        case FSMState::JSR_1: return "PC <- BaseR";
+        case FSMState::JSR_2: return "PC <- PC + off11";
         case FSMState::JMP_0: return "PC <- BaseR";
         case FSMState::BR_0: return "[BEN]";
         case FSMState::BR_1: return "PC <- PC + offset9";

@@ -157,7 +157,8 @@ class CPU{
     void execute_st2(); /* functions for ST, STR, and STI */
 
     void execute_jsr0();
-    void execute_jsr1(); /* functions for JSR operation */
+    void execute_jsr1();
+    void execute_jsr2(); /* functions for JSR operation */
 
     void execute_jmp0(); /* function for JMP operation */
 
