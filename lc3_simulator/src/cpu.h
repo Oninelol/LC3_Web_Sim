@@ -66,11 +66,11 @@ class CPU{
 
     uint16_t read_memory(uint16_t addr)
     {
-        return memory[addr];
+        return memory.read(addr);
     }
 
-    uint16_t write_memory(uint16_t addr,uint16_t write){
-        memory[addr] = write;
+    void write_memory(uint16_t addr,uint16_t write){
+        memory.write(addr,write);
     }   /* Build the memory R/W system in the LC3 CPU (Datapath) */
 
     void load_program(const uint16_t* prog,uint16_t len,uint16_t start = 0x3000);   /* Load the program into LC3 data, default start at x3000 */
@@ -108,7 +108,7 @@ class CPU{
     private:   
      /*  functions to perform LC3 FSM in CPU */
     CPUState state; /* define variable state using CPUState in cpu_state.h */
-    std::array<uint16_t, 65536> memory; /* Memory capped at xFFFF */
+    Memory memory;
 
     void transition_to(FSMState new_state); /* Helper method to transition to different FSM states */
     uint16_t sign_extend(uint16_t val, int bits);
@@ -157,7 +157,8 @@ class CPU{
     void execute_st2(); /* functions for ST, STR, and STI */
 
     void execute_jsr0();
-    void execute_jsr1(); /* functions for JSR operation */
+    void execute_jsr1();
+    void execute_jsr2(); /* functions for JSR operation */
 
     void execute_jmp0(); /* function for JMP operation */
 

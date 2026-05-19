@@ -2,16 +2,17 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <array>
 
 class Memory{
     public:
     Memory();
     uint16_t read(uint16_t address) const;
-    void write(uint16_t value,uint16_t address);    /* Reading and writing, standard hardware address */
+    void write(uint16_t address,uint16_t value);    /* Reading and writing, standard hardware address */
     
     void clear_memory();   /* Reset Memory to all 0 */
     
-    void load_program(const uint16_t* data,uint16_t size,uint16_t start_addr);   /* Load a program into memory at origin */
+    void load_program(const uint16_t* data,size_t size,uint16_t start_addr);   /* Load a program into memory at origin */
 
     uint16_t mem_debugger(uint16_t address) const{
         return memory[address];

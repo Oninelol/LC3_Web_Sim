@@ -52,6 +52,7 @@ enum class FSMState {
 
     JSR_0,
     JSR_1,  /* 2 states of JSR, second one depending on IR[11] */
+    JSR_2,  /* JSR_1 is IR[11]=0, JSR_2 is IR[11]=1 */
 
     JMP_0,  /* 1 state of JMP */
 
@@ -59,9 +60,8 @@ enum class FSMState {
     BR_1,   /* 2 states of BR */
 
     HALT,   /* TRAP x25 */
-    ERROR,  /* x1101 instruction at DECODE */
-
-
+    ERROR,  /* To 8 instruction at DECODE */
+    RESERVED, /* x1101 reserved opcode */
 };
 
 /* Conversion of FSM State to string*/
@@ -101,12 +101,14 @@ inline std::string fsm_state_to_string(FSMState state){
         case FSMState::ST_1: return "ST_1";
         case FSMState::ST_2: return "ST_2";
         case FSMState::JSR_0: return "JSR_0";
-        case FSMState::JSR_1: return "JSR_1";
+        case FSMState::JSR_1: return "JSR, IR11=0";
+        case FSMState::JSR_2: return "JSR, IR[11]=1";
         case FSMState::JMP_0: return "JMP_0";
         case FSMState::BR_0: return "BR_0";
         case FSMState::BR_1: return "BR_1";
         case FSMState::HALT: return "HALT";
         case FSMState::ERROR: return "ERROR";
+        case FSMState::RESERVED: return "RESERVED OPCODE";
         default: return "UNKNOWN";
     }
 }
@@ -147,12 +149,14 @@ inline std::string fsm_state_description(FSMState state){
         case FSMState::ST_1: return "MDR <- SR";
         case FSMState::ST_2: return "M[MAR] <- MDR";
         case FSMState::JSR_0: return "R7 <- PC (save return address), [IR[11]]";
-        case FSMState::JSR_1: return "PC <- Target Address";
+        case FSMState::JSR_1: return "PC <- BaseR";
+        case FSMState::JSR_2: return "PC <- PC + off11";
         case FSMState::JMP_0: return "PC <- BaseR";
         case FSMState::BR_0: return "[BEN]";
         case FSMState::BR_1: return "PC <- PC + offset9";
         case FSMState::HALT: return "Execution Halted";
         case FSMState::ERROR: return "Invalid Instruction";
+        case FSMState::RESERVED: return "RESERVED OPCODE";
         default: return "Unknown Instruction";
     }
 }
@@ -175,6 +179,6 @@ struct CPUState{
 
     CPUState();     /* Constructor */
     void reset();   /* Reset state of LC3 CPU*/
-    void update_flags(uint16_t result);
+    void update_cond(uint16_t result);
     void print() const;
 };
