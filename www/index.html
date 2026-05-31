@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LC-3 FSM State Simulator</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>LC-3 FSM State Simulator</h1>
+    <span class="sub">watch the control unit walk the state machine, one cycle at a time</span>
+    <span class="pill" id="engine">loading…</span>
+    <span class="pill" id="cyclepill">0 cycles</span>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: program editor + palette + examples -->
+    <section class="card">
+      <h2>Program</h2>
+
+      <label class="fieldlabel" for="examples">Load example</label>
+      <select id="examples">
+        <option value="">— sample programs —</option>
+      </select>
+
+      <div class="palette" id="palette"></div>
+      <textarea id="src" spellcheck="false" aria-label="LC-3 assembly program"></textarea>
+      <div class="err" id="err"></div>
+
+      <div class="btnrow">
+        <button class="primary" id="assemble">Assemble &amp; load</button>
+        <button id="clear">Clear</button>
+      </div>
+      <div class="speedrow">
+        <span>Speed</span>
+        <input type="range" id="speed" min="40" max="900" value="320" step="20">
+      </div>
+    </section>
+
+    <!-- CENTER: datapath + controls -->
+    <section class="card">
+      <h2>Datapath &amp; current state</h2>
+      <div class="stage-now" id="stagenow">idle — load a program</div>
+      <div class="rtl"><span id="rtltext">&nbsp;</span><span class="statenum" id="snum"></span></div>
+      <div id="datapath"></div>
+      <div class="btnrow">
+        <button id="stepCycle">Step cycle</button>
+        <button id="stepInstr">Step instruction</button>
+        <button id="run">Run</button>
+        <button id="pause" disabled>Pause</button>
+        <button id="reset">Reset</button>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--fetch)"></i>Fetch</span>
+        <span><i style="background:var(--decode)"></i>Decode</span>
+        <span><i style="background:var(--exec)"></i>Execute</span>
+        <span><i style="background:var(--mem)"></i>Memory</span>
+        <span><i style="background:var(--halt)"></i>Halt</span>
+      </div>
+    </section>
+
+    <!-- RIGHT: registers + trace -->
+    <section class="card stack">
+      <div>
+        <h2>Registers</h2>
+        <table id="regs"></table>
+        <div class="nzp" id="nzp">
+          <span data-f="n">N 0</span><span data-f="z" class="on">Z 1</span><span data-f="p">P 0</span>
+        </div>
+      </div>
+      <div>
+        <h2>FSM trace <span class="tracecount" id="tracecount"></span></h2>
+        <div class="trace" id="trace"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="foot">
+    runs your compiled C++ core (<code>src/</code>) via WebAssembly &middot; state numbers per Patt &amp; Patel
+  </footer>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
