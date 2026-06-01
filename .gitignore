@@ -1,0 +1,6 @@
+/emsdk/
+.emscripten*
+
+/src/test
+*.o
+*.a
