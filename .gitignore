@@ -3,4 +3,4 @@
 
 /src/test
 *.o
-*.a
+*.a 
