@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LC-3 FSM Simulator — Block Edition</title>
+<title>LC-3 FSM Simulator</title>
 <link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
@@ -11,9 +11,34 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>LC-3 FSM Simulator</h1>
+    <span class="title">LC-3 FSM Simulator</span>
+
+    <!-- Pure-black CPU chip icon, 50×50, sized to match the title -->
+    <svg class="chip-icon" viewBox="0 0 24 24" width="50" height="50" aria-hidden="true">
+      <rect x="8"    y="1"    width="1.4" height="2.5" fill="#000"/>
+      <rect x="11"   y="1"    width="1.4" height="2.5" fill="#000"/>
+      <rect x="14"   y="1"    width="1.4" height="2.5" fill="#000"/>
+      <rect x="8"    y="20.5" width="1.4" height="2.5" fill="#000"/>
+      <rect x="11"   y="20.5" width="1.4" height="2.5" fill="#000"/>
+      <rect x="14"   y="20.5" width="1.4" height="2.5" fill="#000"/>
+      <rect x="1"    y="8"    width="2.5" height="1.4" fill="#000"/>
+      <rect x="1"    y="11"   width="2.5" height="1.4" fill="#000"/>
+      <rect x="1"    y="14"   width="2.5" height="1.4" fill="#000"/>
+      <rect x="20.5" y="8"    width="2.5" height="1.4" fill="#000"/>
+      <rect x="20.5" y="11"   width="2.5" height="1.4" fill="#000"/>
+      <rect x="20.5" y="14"   width="2.5" height="1.4" fill="#000"/>
+      <rect x="3.5"  y="3.5"  width="17"  height="17"  rx="1.2" fill="none" stroke="#000" stroke-width="1.4"/>
+      <rect x="7"    y="7"    width="10"  height="10"  rx="0.6" fill="none" stroke="#000" stroke-width="1"/>
+    </svg>
+
     <span class="sub">build programs with blocks &middot; watch the state machine execute them</span>
-    <span class="pill" id="engine">loading…</span>
+
+    <!--
+      The slot on the far right shows the cycle counter during normal use.
+      If the WASM module fails to load, JS swaps in a small red error pill here
+      (#engine) so failure is surfaced without cluttering the header normally.
+    -->
+    <span class="pill" id="engine" hidden></span>
     <span class="pill" id="cyclepill">0 cycles</span>
   </header>
 
