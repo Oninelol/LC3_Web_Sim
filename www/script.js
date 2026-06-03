@@ -1,7 +1,27 @@
+// script.js — block-based LC-3 FSM simulator front-end.
+//
+// The user composes programs from drag-droppable opcode blocks (Scratch-like).
+// Each block has fillable fields (registers, immediates, labels). Pressing
+// "Run" walks the block list, encodes each block into a 16-bit machine word
+// (resolving label references to PC-offsets), and loads the result into the
+// WASM CPU. From the WASM boundary onward, behavior is identical to the
+// previous build — your unchanged C++ FSM runs the program.
+
+// ============================================================================
+// 1. BLOCK CATALOG
+// ----------------------------------------------------------------------------
+// Each entry describes one opcode-shaped block: its visual category (for
+// coloring), the fields it shows, and a function that encodes a block of this
+// type into a uint16_t machine word given its current field values + the
+// symbol table.
+// ============================================================================
+
 const REGS = ['R0','R1','R2','R3','R4','R5','R6','R7'];
 const sext = (v, bits) => v & ((1 << bits) - 1);
 const fits = (v, bits) => v >= -(1<<(bits-1)) && v <= (1<<(bits-1))-1;
- 
+
+// Each field descriptor: { name, kind, options?, default, width? }
+//   kind: 'reg' | 'imm' | 'mode' | 'nzp' | 'target' | 'trap'
 const CATALOG = {
   ADD: {
     family:'exec', label:'ADD',
@@ -130,8 +150,16 @@ const CATALOG = {
     encode(){ return (15<<12)|0x25; }
   },
 };
- 
-let program = [];          
+
+// ============================================================================
+// 2. PROGRAM MODEL
+// ----------------------------------------------------------------------------
+// The program is an array of block instances. Each instance:
+//   { id, opcode, fields:{...}, label:string|null }
+// 'label' (if set) is the name of any other block can branch to.
+// ============================================================================
+
+let program = [];           // ordered list of block instances
 let nextId = 1;
 function makeBlock(opcode){
   const spec = CATALOG[opcode];
@@ -140,8 +168,16 @@ function makeBlock(opcode){
   return { id:'b'+(nextId++), opcode, fields, label:null };
 }
 
+// ============================================================================
+// 3. ENCODER (blocks -> uint16_t array)
+// ----------------------------------------------------------------------------
+// Two passes, just like the textual assembler — pass 1 maps each block's label
+// (if any) to its address; pass 2 encodes each block, resolving target dropdowns
+// against the symbol table.
+// ============================================================================
+
 const ORIG = 0x3000;
- 
+
 function resolveOffset(target, bits, ctx){
   // target is either a label name (string) or a numeric offset (e.g. "-2")
   let dest;
@@ -159,7 +195,7 @@ function resolveOffset(target, bits, ctx){
   if(!fits(off, bits)) throw new Error(`label "${target}" is too far (${off}, ${bits}-bit signed range)`);
   return sext(off, bits);
 }
- 
+
 function encode(){
   // Pass 1: addresses + symbol table
   const symbols = {};
@@ -177,17 +213,17 @@ function encode(){
   });
   return { words, orig: ORIG, symbols };
 }
- 
+
 // Collect labels that exist in the program (for target dropdowns)
 function availableLabels(){ return program.filter(b=>b.label).map(b=>b.label); }
- 
+
 // ============================================================================
 // 4. UI: palette, program list, drag/drop, field editors
 // ============================================================================
- 
+
 const $ = s => document.querySelector(s);
 const hex = v => '0x'+(v>>>0).toString(16).toUpperCase().padStart(4,'0');
- 
+
 function renderPalette(){
   const pal = $('#palette');
   pal.innerHTML = '';
@@ -206,7 +242,7 @@ function renderPalette(){
     pal.appendChild(el);
   }
 }
- 
+
 function renderProgram(){
   const list = $('#program');
   list.innerHTML = '';
@@ -263,13 +299,13 @@ function renderProgram(){
     list.appendChild(el);
   });
 }
- 
+
 function renderField(block, fieldSpec, labels){
   const wrap = document.createElement('label');
   wrap.className = 'field';
   wrap.innerHTML = `<span class="fname">${fieldSpec.name}</span>`;
   const val = block.fields[fieldSpec.name];
- 
+
   if (fieldSpec.kind === 'reg'){
     const sel = document.createElement('select');
     for (const r of REGS){ const o=document.createElement('option'); o.value=r; o.textContent=r; if(r===val) o.selected=true; sel.appendChild(o); }
@@ -366,7 +402,7 @@ function renderField(block, fieldSpec, labels){
   }
   return wrap;
 }
- 
+
 function handleDrop(e, targetIdx){
   const opcode = e.dataTransfer.getData('application/x-lc3-op');
   const moveId = e.dataTransfer.getData('application/x-lc3-move');
@@ -381,7 +417,7 @@ function handleDrop(e, targetIdx){
   }
   renderProgram();
 }
- 
+
 // Drop onto the empty program area or after the last block
 function wireProgramDrop(){
   const list = $('#program');
@@ -392,11 +428,11 @@ function wireProgramDrop(){
     handleDrop(e, program.length);
   });
 }
- 
+
 // ============================================================================
 // 5. WASM driver (unchanged from before — loads cpu, steps, renders trace)
 // ============================================================================
- 
+
 const STATE_NUM = {
   FETCH_0:18, FETCH_1:33, FETCH_2:35, DECODE:32,
   ADD_0:1, AND_0:5, NOT_0:9, LEA_0:14,
@@ -414,24 +450,31 @@ function family(name, desc){
   if (/M\[MAR\]/.test(desc)) return 'mem';
   return 'exec';
 }
- 
+
 let Module=null, cpu=null, trace=[], curIdx=-1, timer=null;
- 
+
 async function boot(){
   renderPalette(); wireProgramDrop(); renderProgram();
   wireControls();
+  const engine = $('#engine');
   try {
     const createLC3 = (await import('./lc3.js')).default;
     Module = await createLC3();
     cpu = new Module.LC3();
-    $('#engine').textContent='WASM ✓';
+    // Success: leave the engine pill hidden so the header stays clean.
+    engine.hidden = true;
+    engine.classList.remove('error');
     render(true);
   } catch(e){
-    $('#engine').textContent='WASM not built';
-    $('#err').textContent='Could not load lc3.wasm. Run `make wasm`, then serve over http (not file://).\n('+e.message+')';
+    // Failure: replace the cycle pill area with a visible red warning.
+    engine.hidden = false;
+    engine.classList.add('error');
+    engine.textContent = '⚠ WASM failed to load';
+    $('#err').textContent =
+      'Could not load lc3.wasm. Run `make wasm`, then serve over http (not file://).\n('+e.message+')';
   }
 }
- 
+
 function loadAndReset(){
   stopRun();
   if (!cpu){ $('#err').textContent='WASM not loaded yet'; return; }
@@ -444,7 +487,7 @@ function loadAndReset(){
   trace=[]; curIdx=-1;
   render(true);
 }
- 
+
 function stepCycle(){
   if (!cpu || !cpu.running()) return;
   const name=cpu.stateName(), desc=cpu.stateDesc();
@@ -465,7 +508,7 @@ function startRun(){
   tick();
 }
 function stopRun(){ if(timer){clearTimeout(timer);timer=null;} $('#run').disabled=false; $('#pause').disabled=true; }
- 
+
 function render(initial){
   if (!cpu) return;
   if (curIdx>=0){
@@ -479,7 +522,7 @@ function render(initial){
     $('#snum').textContent='';
   }
   $('#cyclepill').textContent = cpu.cycles()+' cycles';
- 
+
   let rh='';
   for(let i=0;i<8;i++){
     const v=cpu.reg(i);
@@ -490,17 +533,17 @@ function render(initial){
   rh+=`<tr><td class="name">MAR</td><td class="val">${hex(cpu.mar())}</td><td></td></tr>`;
   rh+=`<tr><td class="name">MDR</td><td class="val">${hex(cpu.mdr())}</td><td></td></tr>`;
   $('#regs').innerHTML=rh;
- 
+
   document.querySelectorAll('#nzp span').forEach(s=>{
     const f=s.dataset.f, on=f==='n'?cpu.n():f==='z'?cpu.z():cpu.p();
     s.classList.toggle('on',on); s.textContent=f.toUpperCase()+' '+(on?1:0);
   });
- 
+
   drawDatapath();
   renderTrace();
   highlightActiveBlock();
 }
- 
+
 // Highlight which block the CPU is currently fetching/executing
 function highlightActiveBlock(){
   document.querySelectorAll('#program .block').forEach(el=>el.classList.remove('active'));
@@ -515,7 +558,7 @@ function highlightActiveBlock(){
     if (el) el.classList.add('active');
   }
 }
- 
+
 function renderTrace(){
   const box=$('#trace');
   box.innerHTML = trace.map((t,i)=>`
@@ -527,7 +570,7 @@ function renderTrace(){
   $('#tracecount').textContent = trace.length?trace.length+' cycles':'';
   const cur=box.querySelector('.cur'); if(cur && cur.scrollIntoView) cur.scrollIntoView({block:'nearest'});
 }
- 
+
 function drawDatapath(){
   if (!cpu) return;
   const t = curIdx>=0?trace[curIdx]:null;
@@ -562,7 +605,7 @@ function drawDatapath(){
     <text x="270" y="238" text-anchor="middle" fill="#5b6776" font-family="monospace" font-size="11">${name?name+' — '+desc:'idle'}</text>
   </svg>`;
 }
- 
+
 function wireControls(){
   $('#assemble').onclick=loadAndReset;
   $('#stepCycle').onclick=stepCycle;
@@ -577,7 +620,7 @@ function wireControls(){
     loadPreset(v); e.target.value='';
   };
 }
- 
+
 const PRESETS = {
   countdown: ()=>[
     Object.assign(makeBlock('AND'),{fields:{DR:'R0',SR1:'R0',mode:'imm',op2:'0'}}),
@@ -607,5 +650,5 @@ function loadPreset(name){
   program.forEach(b=>{ b.id='b'+(nextId++); });
   renderProgram();
 }
- 
+
 boot();
