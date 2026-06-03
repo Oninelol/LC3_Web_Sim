@@ -8,6 +8,10 @@ The inspiration comes from ECE120 and ECE220 at UIUC. Where the LC3 ISA is treat
 
 So I wrote one that doesn't hide that. The FSM is the simulator. Stepping is per-cycle. Eventually the web frontend will visualize the FSM diagram with the current state highlighted, so you can see — in real time — your program move through the state graph as it executes.
 
+## Structure
+
+
+
 ## Architecture
 
 The simulator is built with three layers:
@@ -16,11 +20,13 @@ src/cpu_state.h — The data layer. Defines the struct CPUState that holds all a
 
 src/memory.{h,cpp} — The Memory class. The class holds a 64K array of 16-bit words with read(), write(), clear_memory(), and load_program() methods. 
 
+## Features
+
+
 
 ## How it works
 
 The inspiration of this simulator comes from a programming tool that probably everyone has used as a kid — Scratch. The visual simulator offers fillable operation blocks based off the LC3 ISA on the right side of the page. Based on what the user wants, the user can build the program using the fillable blocks on the right. Then, instead of directly showing compilation results as a compiler, the user can toggle the step and run commands on the bottom of the page. In which the step shows the FSM instructions once at a time, or fully printed out as a whole. Simultaneously, the user can choose a specific step and see the values of different LC3 CPU signals, such as MAR, MDR, IR, NZP, etc. In this way, the tool can promote better understanding of assembly language for students that are new to these concepts. 
 
   
-
 ## 
