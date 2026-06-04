@@ -10,7 +10,28 @@ So I wrote one that doesn't hide that. The FSM is the simulator. Stepping is per
 
 ## Structure
 
-
+lc3-simulator/
+├── examples/    # Sample LC-3 assembly programs
+│   ├── branch_test.asm
+│   ├── fibonacci.asm
+│   └── loop.asm
+├── src/        # CPU, Memory, Simulator Implementation (C++ Core)
+│   ├── bindings.cpp
+│   ├── cpu.cpp
+│   ├── cpu.h
+│   ├── cpu_state.h
+│   ├── memory.cpp
+│   ├── memory.h
+│   └── test.cpp
+├── www/       # WebAssembly frontend and browser UI
+│   ├── index.html
+│   ├── lc3.js
+│   ├── lc3.wasm
+│   ├── script.js
+│   └── style.css
+├── .gitignore
+├── Makefile  # Configuration for Building
+└── README.md
 
 ## Architecture
 
