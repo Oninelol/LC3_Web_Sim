@@ -10,6 +10,7 @@ So I wrote one that doesn't hide that. The FSM is the simulator. Stepping is per
 
 ## Structure
 
+```
 lc3-simulator/
 ├── examples/    # Sample LC-3 assembly programs
 │   ├── branch_test.asm
@@ -32,6 +33,7 @@ lc3-simulator/
 ├── .gitignore
 ├── Makefile  # Configuration for Building
 └── README.md
+```
 
 ## Architecture
 
