@@ -3,7 +3,7 @@ CXXFLAGS ?= -std=c++17 -O2 -Wall -Isrc
 SRC       = src/cpu.cpp src/memory.cpp
 EMCC     ?= emcc
 EMFLAGS   = -std=c++17 -O2 -Isrc --bind \
-            -s MODULARIZE=1 -s EXPORT_NAME=createLC3 \
+            -s MODULARIZE=1 -s EXPORT_NAME=createLC3 -s EXPORT_ES6=1 \
             -s ENVIRONMENT=web -s ALLOW_MEMORY_GROWTH=1
  
 .PHONY: all wasm test native serve clean
