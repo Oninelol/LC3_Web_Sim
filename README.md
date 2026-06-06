@@ -58,4 +58,10 @@ src/memory.{h,cpp} — The Memory class. The class holds a 64K array of 16-bit w
 The inspiration of this simulator comes from a programming tool that probably everyone has used as a kid — Scratch. The visual simulator offers fillable operation blocks based off the LC3 ISA on the right side of the page. Based on what the user wants, the user can build the program using the fillable blocks on the right. Then, instead of directly showing compilation results as a compiler, the user can toggle the step and run commands on the bottom of the page. In which the step shows the FSM instructions once at a time, or fully printed out as a whole. Simultaneously, the user can choose a specific step and see the values of different LC3 CPU signals, such as MAR, MDR, IR, NZP, etc. In this way, the tool can promote better understanding of assembly language for students that are new to these concepts. 
 
   
-## 
+## Build and Run Locally
+
+
+
+## Acknowledgements
+
+The LC-3 ISA and FSM design are from Introduction to Computing Systems by Yale Patt and Sanjay Patel. State numbers in the trace match the canonical microcontroller in Appendix C of that text.
