@@ -45,6 +45,12 @@ src/memory.{h,cpp} — The Memory class. The class holds a 64K array of 16-bit w
 
 ## Features
 
+- **Block-based program editor.** Drag-and-drop opcodes with fillable register and immediate fields. No assembly syntax to memorize — invalid combinations are unreachable by construction.
+- **Per-cycle stepping.** Step one FSM transition at a time, one full instruction at a time, or run to halt with adjustable speed.
+- **Live FSM trace.** Every cycle logged with state name, Patt & Patel state number, and RTL description, color-coded by phase (fetch, decode, execute, memory access, halt).
+- **Animated datapath.** PC, IR, MAR, MDR, memory, and ALU light up to show which datapath element is active in the current state.
+- **Full instruction set.** ADD, AND, NOT, LD, LDR, LDI, ST, STR, STI, LEA, BR (with N/Z/P conditions), JMP, JSR, JSRR, TRAP, HALT.
+- **Branch/loop support.** Attach labels to blocks; BR and JSR targets resolve them visually.
 
 
 ## How it works
