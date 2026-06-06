@@ -60,6 +60,30 @@ The inspiration of this simulator comes from a programming tool that probably ev
   
 ## Build and Run Locally
 
+The native simulator builds with any C++17 compiler:
+
+```bash
+make native        # produces ./lc3_simulator
+make test          # runs the unit tests
+```
+
+The web simulator requires Emscripten. One-time setup:
+
+```bash
+git clone https://github.com/emscripten-core/emsdk.git
+./emsdk/emsdk install latest
+./emsdk/emsdk activate latest
+source ./emsdk/emsdk_env.sh
+```
+
+Then build the WASM and preview the site:
+
+```bash
+make wasm          # compiles src/ → www/lc3.js + www/lc3.wasm
+make serve         # serves http://localhost:8000/www/
+```
+
+Open `http://localhost:8000/www/` in a browser. The site needs HTTP (not `file://`) because the WASM loader uses ES-module imports.
 
 
 ## Acknowledgements
